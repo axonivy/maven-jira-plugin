@@ -47,4 +47,11 @@ class TestJiraReleaseService {
   void move() {
     releases.move("8.0.29", "8.0.24");
   }
+
+  @Test
+  @Disabled("crud op that changes running instance")
+  void create() {
+    releases.create("test");
+  }
+
 }
