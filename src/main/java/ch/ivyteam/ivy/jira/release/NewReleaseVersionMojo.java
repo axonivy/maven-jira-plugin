@@ -52,8 +52,8 @@ public class NewReleaseVersionMojo extends AbstractMojo {
       return;
     }
 
-    var next = ReleaseVersion.parse(newVersion);
-    if (next.isEmpty()) {
+    var version = ReleaseVersion.parse(newVersion);
+    if (version.isEmpty()) {
       getLog().error("aborting: property 'newVersion' is mandatory, but was "+newVersion);
       return;
     }
@@ -64,27 +64,26 @@ public class NewReleaseVersionMojo extends AbstractMojo {
     var after = ReleaseVersion.parse(afterVersion);
 
     var releases = new JiraReleaseService(server, jiraServerUri);
-    createVersion(releases, newVersion, after, getLog());
+    createVersion(releases, version.get(), after, getLog());
   }
 
-  private static void createVersion(JiraReleaseService releases, String newVersion, Optional<String> afterVersion, Log log) {
+  private static void createVersion(JiraReleaseService releases, ReleaseVersion newVersion, Optional<ReleaseVersion> afterVersion, Log log) {
     var versions = releases.ivyVersions();
     var existing = versions.stream()
-      .filter(version -> newVersion.equalsIgnoreCase(version.name))
+      .filter(version -> newVersion.toShortString().equalsIgnoreCase(version.name))
       .findFirst();
     if (existing.isPresent()) {
-      log.info("skipping: XIVY version "+newVersion+" exists already "+existing.get().self);
+      log.info("Skipping: XIVY version "+newVersion+" exists already "+existing.get().self);
       return;
     }
 
-    JiraVersion created = releases.create(newVersion);
-    log.info("created new XIVY version "+created.self);
+    JiraVersion created = releases.create(newVersion.toShortString());
+    log.info("Created new XIVY version " + created.self);
 
 
     if (afterVersion.isPresent()) {
-      releases.move(newVersion, afterVersion.get());
-      log.info("moved "+newVersion+" to occur after "+afterVersion);
+      releases.move(newVersion.toShortString(), afterVersion.get().toShortString());
+      log.info("Moved "+newVersion+" to occur after "+afterVersion);
     }
   }
-
 }
