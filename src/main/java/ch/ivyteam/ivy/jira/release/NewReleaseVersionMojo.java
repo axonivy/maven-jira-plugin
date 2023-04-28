@@ -83,7 +83,7 @@ public class NewReleaseVersionMojo extends AbstractMojo {
 
     if (afterVersion.isPresent()) {
       releases.move(newVersion.toShortString(), afterVersion.get().toShortString());
-      log.info("Moved "+newVersion+" to occur after "+afterVersion);
+      log.info("Moved "+newVersion+" to occur after "+afterVersion.get());
     }
   }
 }
