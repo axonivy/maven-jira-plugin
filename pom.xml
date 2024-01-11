@@ -151,7 +151,7 @@
           <artifactId>maven-plugin-plugin</artifactId>
           <version>3.11.0</version>
           <configuration>
-			  <goalPrefix>jira-plugin</goalPrefix>
+			  <goalPrefix>jira</goalPrefix>
 		  </configuration>
         </plugin>
   
