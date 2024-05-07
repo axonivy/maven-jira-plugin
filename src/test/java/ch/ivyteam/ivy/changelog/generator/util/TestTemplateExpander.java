@@ -15,21 +15,21 @@ class TestTemplateExpander {
 
   @Test
   void expand_key() {
-    TemplateExpander testee = new TemplateExpander("[${key}] - ${summary}", "", "");
+    TemplateExpander testee = new TemplateExpander("[${key}] - ${summary}", "", "", false);
     String expand = testee.expand(createOneIssue(), "");
-    assertThat(expand).isEqualTo("[XIVY-500] - JSF Bug");
+    assertThat(expand).isEqualTo("[XIVY-500] - JSF Bug for *.xhtml");
   }
 
   @Test
   void expand_labelsWithHtmlBatches() {
-    TemplateExpander testee = new TemplateExpander("${labelsWithHtmlBatches}", "seCurity , performance", "");
+    TemplateExpander testee = new TemplateExpander("${labelsWithHtmlBatches}", "seCurity , performance", "", false);
     String expand = testee.expand(createOneIssue(), "");
     assertThat(expand).isEqualTo("<span class=\"badge badge-pill badge-success badge-security\">security</span>");
   }
 
   @Test
   void expand_labelsWithMulitpleHtmlBatches() {
-    TemplateExpander testee = new TemplateExpander("${labelsWithHtmlBatches}", "seCurity , jira_escalated", "");
+    TemplateExpander testee = new TemplateExpander("${labelsWithHtmlBatches}", "seCurity , jira_escalated", "", false);
     String expand = testee.expand(createOneIssue(), "");
     assertThat(expand).isEqualTo("<span class=\"badge badge-pill badge-success badge-security\">security</span> "
             + "<span class=\"badge badge-pill badge-success badge-jira_escalated\">jira_escalated</span>");
@@ -37,21 +37,21 @@ class TestTemplateExpander {
 
   @Test
   void expand_ascii_keepLeadingWhitespace() {
-    TemplateExpander testee = new TemplateExpander("   [${key}] - ${summary}", "", "");
+    TemplateExpander testee = new TemplateExpander("   [${key}] - ${summary}", "", "", false);
     String expand = testee.expand(createOneIssue(), "");
-    assertThat(expand).isEqualTo("   [XIVY-500] - JSF Bug");
+    assertThat(expand).isEqualTo("   [XIVY-500] - JSF Bug for *.xhtml");
   }
 
   @Test
   void expand_md_header() {
-    TemplateExpander testee = new TemplateExpander("   [${key}] - ${summary}", "", "##");
+    TemplateExpander testee = new TemplateExpander("   [${key}] - ${summary}", "", "##", true);
     String expand = testee.expand(createOneIssue(), "Issues");
-    assertThat(expand).isEqualTo("## Issues\r\n\r\n   [XIVY-500] - JSF Bug");
+    assertThat(expand).isEqualTo("## Issues\r\n\r\n   [XIVY-500] - JSF Bug for \\*.xhtml");
   }
 
   @Test
   void expand_md_noHeaderIfNoIssue() {
-    TemplateExpander testee = new TemplateExpander("   [${key}] - ${summary}", "", "##");
+    TemplateExpander testee = new TemplateExpander("   [${key}] - ${summary}", "", "##", false);
     String expand = testee.expand(List.of(), "Issues");
     assertThat(expand).isEqualTo("");
   }
@@ -63,7 +63,7 @@ class TestTemplateExpander {
     i.key = "XIVY-500";
     i.fields = new IssueFields();
 
-    i.fields.summary = "JSF Bug";
+    i.fields.summary = "JSF Bug for *.xhtml";
 
     i.fields.issuetype = new Type();
     i.fields.issuetype.name = "Bug";

@@ -172,11 +172,11 @@ public class ChangelogGeneratorMojo extends AbstractMojo {
     if (file.getName().endsWith(".md")) {
       return createMarkdownTemplateExpander();
     }
-    return new TemplateExpander(asciiTemplate, whitelistJiraLabels, "");
+    return new TemplateExpander(asciiTemplate, whitelistJiraLabels, "", false);
   }
 
   private TemplateExpander createMarkdownTemplateExpander() {
-    return new TemplateExpander(markdownTemplate, whitelistJiraLabels, markdownHeaderIndent);
+    return new TemplateExpander(markdownTemplate, whitelistJiraLabels, markdownHeaderIndent, true);
   }
 
   private Map<String, String> generateTokens(List<Issue> issues, TemplateExpander expander) {

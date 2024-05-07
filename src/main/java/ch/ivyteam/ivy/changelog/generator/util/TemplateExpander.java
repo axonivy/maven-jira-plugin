@@ -14,15 +14,18 @@ import org.apache.commons.text.WordUtils;
 import ch.ivyteam.ivy.changelog.generator.jira.JiraResponse.Issue;
 
 public class TemplateExpander {
+
   private final String template;
   private final Set<String> whitelistJiraLables;
   private int wordWrap = -1;
   private String markdownHeaderIndent;
+  private boolean isMarkdown;
 
-  public TemplateExpander(String template, String whitelistJiraLables, String markdownHeaderIndent) {
+  public TemplateExpander(String template, String whitelistJiraLables, String markdownHeaderIndent, boolean isMarkdown) {
     this.template = template;
     this.whitelistJiraLables = convertWhitelistedJiraLables(whitelistJiraLables);
     this.markdownHeaderIndent = markdownHeaderIndent;
+    this.isMarkdown = isMarkdown;
   }
 
   public void setWordWrap(int wordWrap) {
@@ -55,11 +58,11 @@ public class TemplateExpander {
     return changes;
   }
 
-  private static Map<String, String> createValues(Issue issue, Set<String> whitelistedJiraLables,
+  private Map<String, String> createValues(Issue issue, Set<String> whitelistedJiraLables,
           int maxKeyLength, int maxTypeLength) {
     Map<String, String> values = new HashMap<>();
     values.put("kind", createFirstSign(issue));
-    values.put("summary", issue.getSummary());
+    values.put("summary", escape(issue.getSummary()));
     values.put("key", issue.getKey());
     values.put("spacesKey", generateSpaces(maxKeyLength - issue.getKey().length()));
     values.put("type", issue.getType());
@@ -86,6 +89,13 @@ public class TemplateExpander {
       spaces += " ";
     }
     return spaces;
+  }
+
+  private String escape(String input) {
+    if (isMarkdown) {
+      return input.replace("*", "\\*");
+    }
+    return input;
   }
 
   private static String createFirstSign(Issue issue) {
