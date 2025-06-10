@@ -78,11 +78,14 @@ public class JiraResponse {
     }
 
     public List<String> getLabels() {
+      if (fields.labels == null) {
+        return List.of();
+      }
       return fields.labels;
     }
 
     private boolean hasLabel(String label) {
-      return fields.labels.stream().anyMatch(l -> label.equalsIgnoreCase(l));
+      return getLabels().stream().anyMatch(l -> label.equalsIgnoreCase(l));
     }
 
     @Override
