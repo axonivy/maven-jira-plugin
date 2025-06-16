@@ -27,43 +27,46 @@ public class JiraService {
 
   public List<Issue> queryIssues(JiraQuery query) {
     Client client = JiraClientFactory.createClient(server);
-    List<Issue> issues = readIssues(jqlTarget(client, query)).stream()
-            .map(i -> {
-              i.serverUri = serverUri;
-              return i;
-            })
-            .collect(Collectors.toList());
-    return issues;
+    return readIssues(jqlTarget(client, query)).stream()
+        .map(i -> {
+          i.serverUri = serverUri;
+          return i;
+        })
+        .collect(Collectors.toList());
   }
 
   private WebTarget jqlTarget(Client client, JiraQuery query) {
     return client
-            .target(serverUri)
-            .path("rest/api/2/search")
-            .queryParam("jql", query.toJql());
+        .target(serverUri)
+        .path("rest/api/3/search/jql")
+        .queryParam("jql", query.toJql());
   }
 
   private List<Issue> readIssues(WebTarget target) {
     List<Issue> issues = new ArrayList<>();
 
-    Paging read = new Paging(0);
+    Paging page = new Paging();
     do {
-      JiraResponse response = readPaged(target, read);
+      JiraResponse response = readPaged(target, page);
       issues.addAll(response.issues);
-      read = response.page();
-    } while (read.hasNext() && (read = read.next()) != null);
+      page = response.nextPage(page);
+    } while (page.hasNext());
 
     return issues;
   }
 
-  private JiraResponse readPaged(WebTarget target, Paging jiraWindow) {
-    WebTarget pagedTarget = target.queryParam("startAt", jiraWindow.startAt)
-                   .queryParam("maxResults", jiraWindow.maxResults);
+  private JiraResponse readPaged(WebTarget target, Paging page) {
+    WebTarget pagedTarget = target.queryParam("fields", "summary, issuetype, labels, project")
+        .queryParam("maxResults", page.maxResults);
+    if (page.nextPageToken != null) {
+      pagedTarget = pagedTarget.queryParam("nextPageToken", page.nextPageToken);
+    }
+
     log.info("GET: " + pagedTarget.getUri());
     Response response = pagedTarget.request().get();
-    if (!response.getStatusInfo().getFamily().equals(Family.SUCCESSFUL)) {
+    if (!Family.SUCCESSFUL.equals(response.getStatusInfo().getFamily())) {
       throw new RuntimeException(response.getStatusInfo().getStatusCode() + " "
-              + response.getStatusInfo().getReasonPhrase() + " " + response.readEntity(String.class));
+          + response.getStatusInfo().getReasonPhrase() + " " + response.readEntity(String.class));
     }
     return response.readEntity(JiraResponse.class);
   }

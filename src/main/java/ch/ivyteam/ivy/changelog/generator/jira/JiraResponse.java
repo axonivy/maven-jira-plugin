@@ -14,14 +14,12 @@ public class JiraResponse {
   public static final String LABEL_IMPROVEMENT = "improvement";
 
   @JsonProperty
-  private int startAt;
+  private String nextPageToken;
   @JsonProperty
-  private int maxResults;
-  @JsonProperty
-  private int total;
+  private boolean isLast;
 
-  public Paging page() {
-    return new Paging(startAt, maxResults, total);
+  public Paging nextPage(Paging lastPage) {
+    return new Paging(nextPageToken, lastPage.maxResults, isLast);
   }
 
   public List<Issue> issues = new ArrayList<>();
@@ -42,7 +40,7 @@ public class JiraResponse {
 
     public int getIssueNumber() {
       String issueNumber = StringUtils.substringAfter(getKey(), "-");
-      return Integer.valueOf(issueNumber);
+      return Integer.parseInt(issueNumber);
     }
 
     public String getProjectKey() {
@@ -62,7 +60,7 @@ public class JiraResponse {
     }
 
     public boolean isBug() {
-      return getType().equalsIgnoreCase("bug");
+      return "bug".equalsIgnoreCase(getType());
     }
 
     public boolean isImprovement() {
@@ -139,11 +137,11 @@ public class JiraResponse {
 
   public static class Filter {
     public static List<Issue> bugs(List<Issue> issues) {
-      return issues.stream().filter(i -> i.isBug()).collect(Collectors.toList());
+      return issues.stream().filter(Issue::isBug).collect(Collectors.toList());
     }
 
     public static List<Issue> improvements(List<Issue> issues) {
-      return issues.stream().filter(i -> i.isImprovement()).collect(Collectors.toList());
+      return issues.stream().filter(Issue::isImprovement).collect(Collectors.toList());
     }
 
     public static List<Issue> others(List<Issue> issues) {
