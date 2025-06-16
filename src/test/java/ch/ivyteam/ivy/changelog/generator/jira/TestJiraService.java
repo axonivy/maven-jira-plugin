@@ -1,7 +1,6 @@
 package ch.ivyteam.ivy.changelog.generator.jira;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.List;
 
@@ -41,7 +40,7 @@ class TestJiraService {
   }
 
   private void assertThatXIVY2266isContained(List<Issue> issues) {
-    Issue issue = issues.stream().filter(i -> i.key.equals("XIVY-2266")).findFirst().orElse(null);
+    Issue issue = issues.stream().filter(i -> "XIVY-2266".equals(i.key)).findFirst().orElse(null);
     assertThat(issue.getSummary()).isEqualTo("Remove AspectJ");
     assertThat(issue.isUpgradeCritical()).isFalse();
     assertThat(issue.isUpgradeRecommended()).isFalse();
@@ -56,9 +55,8 @@ class TestJiraService {
 
   @Test
   void getIssuesWithFixVersion_notValidVersion() {
-    assertThatThrownBy(() -> testee.queryIssues(query("nonExistingVersion")))
-            .isInstanceOf(RuntimeException.class)
-            .hasMessageContaining("400 Bad Request");
+    List<Issue> issues = testee.queryIssues(query("nonExistingVersion"));
+    assertThat(issues).isEmpty();
   }
 
   private static JiraQuery query(String version) {

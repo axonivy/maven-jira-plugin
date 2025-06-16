@@ -2,31 +2,21 @@ package ch.ivyteam.ivy.changelog.generator.jira;
 
 public class Paging {
 
-  public final int startAt;
+  public final String nextPageToken;
   public final int maxResults;
-  public final int total;
+  public final boolean isLast;
 
-  public Paging(int startAt) {
-    this(startAt, -1, -1);
+  public Paging() {
+    this(null, 100, false);
   }
 
-  public Paging(int startAt, int maxResults, int total) {
-    this.startAt = startAt;
+  public Paging(String nextPageToken, int maxResults, boolean isLast) {
+    this.nextPageToken = nextPageToken;
     this.maxResults = maxResults;
-    this.total = total;
+    this.isLast = isLast;
   }
 
   public boolean hasNext() {
-    if (total == -1) {
-      return true;
-    }
-    return total > startAt+maxResults;
-  }
-
-  public Paging next() {
-    if (!hasNext()) {
-      return null;
-    }
-    return new Paging(startAt+maxResults);
+    return !isLast;
   }
 }

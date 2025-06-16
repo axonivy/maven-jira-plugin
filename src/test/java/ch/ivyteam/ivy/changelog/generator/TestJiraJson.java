@@ -26,7 +26,7 @@ class TestJiraJson {
   @Test
   void testImprovement() throws IOException {
     Path sampleJson = new File("src/test/resources/samples/searchImprovements93.json").toPath();
-    try(InputStream json = Files.newInputStream(sampleJson, StandardOpenOption.READ)) {
+    try (InputStream json = Files.newInputStream(sampleJson, StandardOpenOption.READ)) {
       JiraResponse response = deserialize(json);
       assertThat(response.issues).hasSize(2);
     }
@@ -34,24 +34,22 @@ class TestJiraJson {
 
   @Test
   void testPaging() throws IOException {
-    Path sampleJson = new File("src/test/resources/samples/page1.json").toPath();
-    try(InputStream json = Files.newInputStream(sampleJson, StandardOpenOption.READ)) {
+    var sampleJson = new File("src/test/resources/samples/page1.json").toPath();
+    var firstPage = new Paging();
+    try (InputStream json = Files.newInputStream(sampleJson, StandardOpenOption.READ)) {
       JiraResponse response = deserialize(json);
-      Paging paging = response.page();
-      assertThat(paging.startAt).isEqualTo(0);
+      Paging paging = response.nextPage(firstPage);
+      assertThat(paging.nextPageToken).isEqualTo("Ch0jU3RyaW5nJldFbFdXUT09JUludCZNakExTUE9PRBkGJmbob_3MiJOcHJvamVjdCA9IFhJVlkgQU5EIGlzc3VldHlwZSBJTiAoU3RvcnksIEltcHJvdmVtZW50LCBCdWcpIEFORCBmaXhWZXJzaW9uID0gNy4x");
       assertThat(paging.maxResults).isEqualTo(100);
-      assertThat(paging.total).isEqualTo(150);
+      assertThat(paging.isLast).isFalse();
 
       assertThat(paging.hasNext()).isTrue();
-      Paging next = paging.next();
-      assertThat(next.startAt).isEqualTo(100);
     }
   }
 
   private static JiraResponse deserialize(InputStream json) throws IOException {
     JacksonJsonProvider provider = new JacksonJaxbJsonProvider()
-            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    return (JiraResponse) provider.readFrom(Object.class, JiraResponse.class, new Annotation[0]
-            , MediaType.APPLICATION_JSON_TYPE, new MultivaluedHashMap<String, String>(), json);
+        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    return (JiraResponse) provider.readFrom(Object.class, JiraResponse.class, new Annotation[0], MediaType.APPLICATION_JSON_TYPE, new MultivaluedHashMap<>(), json);
   }
 }
