@@ -21,15 +21,11 @@
   </properties>
   
   <distributionManagement>
-    <repository>
-      <id>nexus.ivyteam.io</id>
-      <url>https://nexus.ivyteam.io/repository/maven-releases/</url>
-    </repository>
-    <snapshotRepository>
-      <id>nexus.ivyteam.io</id>
-      <url>https://nexus.ivyteam.io/repository/maven-snapshots/</url>
-    </snapshotRepository>
-  </distributionManagement>
+		<snapshotRepository>
+			<id>nexus.ivyteam.io</id>
+			<url>https://nexus.ivyteam.io/repository/maven-snapshots-8/</url>
+		</snapshotRepository>
+	</distributionManagement>
 
   <dependencies>
     <dependency>
@@ -139,7 +135,7 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.14.0</version>
         <configuration>
-          <release>17</release>
+          <release>11</release>
         </configuration>
       </plugin> 
     </plugins>
