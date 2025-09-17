@@ -8,7 +8,7 @@ pipeline {
   }
 
   triggers {
-    cron '@midnight'
+    cron '@weekly'
   }
 
   stages {
