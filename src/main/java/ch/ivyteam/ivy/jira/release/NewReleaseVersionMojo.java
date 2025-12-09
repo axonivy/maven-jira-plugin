@@ -21,7 +21,7 @@ public class NewReleaseVersionMojo extends AbstractMojo {
   public String jiraServerId;
 
   /** jira base url */
-  @Parameter(property = "jiraServerUri", defaultValue = "https://1ivy.atlassian.net")
+  @Parameter(property = "jiraServerUri", defaultValue = "https://axon-ivy.atlassian.net")
   public String jiraServerUri;
 
   /** the new version to introduce in jira*/
