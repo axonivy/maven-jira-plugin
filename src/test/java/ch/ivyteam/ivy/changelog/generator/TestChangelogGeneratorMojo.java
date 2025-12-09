@@ -36,7 +36,7 @@ class TestChangelogGeneratorMojo {
     server.setPassword(System.getProperty("jira.password"));
     server.setId("axonivy.jira");
 
-    mojo.jiraServerUri = "https://1ivy.atlassian.net";
+    mojo.jiraServerUri = "https://axon-ivy.atlassian.net";
     mojo.jiraServerId = "axonivy.jira";
     mojo.whitelistJiraLabels = "security,performance";
     mojo.fileset = new FileSet();
