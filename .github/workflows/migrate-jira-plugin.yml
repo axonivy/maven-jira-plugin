@@ -13,7 +13,8 @@ jobs:
     name: Migrate ${{ matrix.repo }}
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
+      pull-requests: write
     strategy:
       matrix:
         repo:
