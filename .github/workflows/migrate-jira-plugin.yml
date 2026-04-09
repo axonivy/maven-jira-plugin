@@ -1,0 +1,55 @@
+name: Migrate Jira Plugin
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to migrate to'
+        required: true
+        default: '14.0.0'
+
+jobs:
+  migrate:
+    name: Migrate ${{ matrix.repo }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        repo:
+          - dev.axonivy.com
+          - github-repo-manager
+    steps:
+      - name: Migrate ${{ matrix.repo }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ inputs.version }}
+          REPO: ${{ matrix.repo }}
+        run: |
+          gh repo clone axonivy/$REPO
+          cd $REPO
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          BRANCH="migrate-jira-plugin-to-${VERSION}"
+          git checkout -b $BRANCH
+          python3 -c "
+import re, sys
+version = sys.argv[1]
+pattern = re.compile(
+  r'(<groupId>ch[.]ivyteam[.]maven</groupId>\s*<artifactId>jira-plugin</artifactId>\s*<version>)[^<]*(</version>)',
+  re.DOTALL
+)
+for fname in sys.argv[2:]:
+  with open(fname) as f:
+    content = f.read()
+  new_content = pattern.sub(lambda m: m.group(1) + version + m.group(2), content)
+  with open(fname, 'w') as f:
+    f.write(new_content)
+" "${VERSION}" $(find . -name 'pom.xml')
+          git add .
+          git diff --cached --quiet && echo "No changes to commit" && exit 0
+          git commit -m "Migrate ch.ivyteam.maven:jira-plugin to ${VERSION}"
+          git push origin $BRANCH
+          gh pr create \
+            --repo axonivy/$REPO \
+            --head $BRANCH \
+            --title "Migrate ch.ivyteam.maven:jira-plugin to ${VERSION}" \
+            --body "Migrate the Maven plugin \`ch.ivyteam.maven:jira-plugin\` to version \`${VERSION}\`."
