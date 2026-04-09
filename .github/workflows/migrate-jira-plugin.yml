@@ -12,12 +12,16 @@ jobs:
   migrate:
     name: Migrate ${{ matrix.repo }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     strategy:
       matrix:
         repo:
           - dev.axonivy.com
           - github-repo-manager
     steps:
+      - uses: actions/checkout@v4
+
       - name: Migrate ${{ matrix.repo }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -30,26 +34,17 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           BRANCH="migrate-jira-plugin-to-${VERSION}"
           git checkout -b $BRANCH
-          python3 -c "
-import re, sys
-version = sys.argv[1]
-pattern = re.compile(
-  r'(<groupId>ch[.]ivyteam[.]maven</groupId>\s*<artifactId>jira-plugin</artifactId>\s*<version>)[^<]*(</version>)',
-  re.DOTALL
-)
-for fname in sys.argv[2:]:
-  with open(fname) as f:
-    content = f.read()
-  new_content = pattern.sub(lambda m: m.group(1) + version + m.group(2), content)
-  with open(fname, 'w') as f:
-    f.write(new_content)
-" "${VERSION}" $(find . -name 'pom.xml')
+          python3 "$GITHUB_WORKSPACE/.github/scripts/update-jira-plugin-version.py" \
+            "${VERSION}" $(find . -name 'pom.xml')
           git add .
-          git diff --cached --quiet && echo "No changes to commit" && exit 0
-          git commit -m "Migrate ch.ivyteam.maven:jira-plugin to ${VERSION}"
-          git push origin $BRANCH
-          gh pr create \
-            --repo axonivy/$REPO \
-            --head $BRANCH \
-            --title "Migrate ch.ivyteam.maven:jira-plugin to ${VERSION}" \
-            --body "Migrate the Maven plugin \`ch.ivyteam.maven:jira-plugin\` to version \`${VERSION}\`."
+          if git diff --cached --quiet; then
+            echo "No changes to commit in $REPO"
+          else
+            git commit -m "Migrate ch.ivyteam.maven:jira-plugin to ${VERSION}"
+            git push origin $BRANCH
+            gh pr create \
+              --repo axonivy/$REPO \
+              --head $BRANCH \
+              --title "Migrate ch.ivyteam.maven:jira-plugin to ${VERSION}" \
+              --body "Migrate the Maven plugin \`ch.ivyteam.maven:jira-plugin\` to version \`${VERSION}\`."
+          fi
