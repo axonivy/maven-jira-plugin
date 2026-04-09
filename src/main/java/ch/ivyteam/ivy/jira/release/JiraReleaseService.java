@@ -22,7 +22,7 @@ public class JiraReleaseService {
 
   public JiraReleaseService(Server server, String serverUri) {
     this.client = JiraClientFactory.createClient(server);
-    this.jiraApi = client.target(serverUri).path("rest/api/2");
+    this.jiraApi = client.target(serverUri).path("rest/api/3");
   }
 
   JiraVersion version(String name) {
