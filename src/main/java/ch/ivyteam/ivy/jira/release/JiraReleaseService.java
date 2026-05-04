@@ -43,8 +43,12 @@ public class JiraReleaseService {
 
   List<JiraVersion> projectVersions(String projectName) {
     WebTarget versionsResource = jiraApi.path("project/{idOrName}/versions").resolveTemplate("idOrName", projectName);
-    var resultType = new GenericType<List<JiraVersion>>() {};
-    return versionsResource.request(MediaType.APPLICATION_JSON).get(resultType);
+    try {
+      var resultType = new GenericType<List<JiraVersion>>() {};
+      return versionsResource.request(MediaType.APPLICATION_JSON).get(resultType);
+    } catch (Exception e) {
+      throw new RuntimeException("Failed to query versions for project '" + projectName + "' via url " + versionsResource.getUri() + ". Maybe the API token is expired?", e);
+    }
   }
 
   public JiraVersion create(String newVersion) {
