@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -32,14 +33,14 @@ import ch.ivyteam.ivy.changelog.generator.util.TokenReplacer;
 @Mojo(name = "generate-changelog", requiresProject = false)
 public class ChangelogGeneratorMojo extends AbstractMojo {
   private static final Comparator<Issue> BY_PRODUCT_THEN_BY_KEY = Comparator.comparing(Issue::getProjectKey).reversed()
-                  .thenComparing(Comparator.comparingInt(Issue::getIssueNumber));
+      .thenComparing(Comparator.comparingInt(Issue::getIssueNumber));
 
   /** server id which is configured in settings.xml */
   @Parameter(property = "jiraServerId")
   public String jiraServerId;
 
   /** jira base url */
-  @Parameter(property = "jiraServerUri", defaultValue = "https://axon-ivy.atlassian.net")
+  @Parameter(property = "jiraServerUri", defaultValue = "https://api.atlassian.com/ex/jira/faf36321-51c3-43cf-bc2b-9c5e380b79e9")
   public String jiraServerUri;
 
   /*** filter query to run against Jira */
@@ -95,7 +96,7 @@ public class ChangelogGeneratorMojo extends AbstractMojo {
     Server server = session.getSettings().getServer(jiraServerId);
     if (server == null) {
       getLog().warn("can not generate changelog because server '" + jiraServerId
-              + "' is not definied in setting.xml");
+          + "' is not definied in setting.xml");
       return;
     }
     exec(server);
@@ -134,9 +135,9 @@ public class ChangelogGeneratorMojo extends AbstractMojo {
 
       Map<String, String> tokens = generateTokens(issues, expander);
       changelog = new TokenReplacer(tokens).replaceTokens(
-              changelogHandler.getTemplateContent());
+          changelogHandler.getTemplateContent());
 
-      if (StringUtils.equals(compression, "gz")) {
+      if (Strings.CI.equals(compression, "gz")) {
         changelogHandler.compressMaxGzipFile(changelog);
       } else {
         changelogHandler.writeResult(changelog);
@@ -156,8 +157,8 @@ public class ChangelogGeneratorMojo extends AbstractMojo {
 
   private List<File> getAllFiles() {
     return Arrays.stream(new FileSetManager().getIncludedFiles(fileset))
-            .map(f -> new File(fileset.getDirectory() + File.separatorChar + f))
-            .collect(Collectors.toList());
+        .map(f -> new File(fileset.getDirectory() + File.separatorChar + f))
+        .collect(Collectors.toList());
   }
 
   private File getOutputFile(File sourceFile) {
@@ -197,14 +198,11 @@ public class ChangelogGeneratorMojo extends AbstractMojo {
     return sortedIssues;
   }
 
-  private String generateUpgradeRecommendation(List<Issue> sortIssues)
-  {
-    if (sortIssues.stream().anyMatch(Issue::isUpgradeCritical))
-    {
+  private String generateUpgradeRecommendation(List<Issue> sortIssues) {
+    if (sortIssues.stream().anyMatch(Issue::isUpgradeCritical)) {
       return "We strongly recommend to install this update release because it fixes security issues!";
     }
-    if (sortIssues.stream().anyMatch(Issue::isUpgradeRecommended))
-    {
+    if (sortIssues.stream().anyMatch(Issue::isUpgradeRecommended)) {
       return "We recommend to install this update release because it fixes stability issues!";
     }
     return "We suggest to install this update release if you are suffering from any of these issues.";

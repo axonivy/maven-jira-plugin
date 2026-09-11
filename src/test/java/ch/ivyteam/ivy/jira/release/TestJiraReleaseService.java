@@ -18,7 +18,7 @@ class TestJiraReleaseService {
     Server server = new Server();
     server.setUsername(System.getProperty("jira.username"));
     server.setPassword(System.getProperty("jira.password"));
-    releases = new JiraReleaseService(server, "https://axon-ivy.atlassian.net");
+    releases = new JiraReleaseService(server, "https://api.atlassian.com/ex/jira/faf36321-51c3-43cf-bc2b-9c5e380b79e9");
   }
 
   @Test

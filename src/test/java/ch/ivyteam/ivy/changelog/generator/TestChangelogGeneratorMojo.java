@@ -36,7 +36,7 @@ class TestChangelogGeneratorMojo {
     server.setPassword(System.getProperty("jira.password"));
     server.setId("axonivy.jira");
 
-    mojo.jiraServerUri = "https://axon-ivy.atlassian.net";
+    mojo.jiraServerUri = "https://api.atlassian.com/ex/jira/faf36321-51c3-43cf-bc2b-9c5e380b79e9";
     mojo.jiraServerId = "axonivy.jira";
     mojo.whitelistJiraLabels = "security,performance";
     mojo.fileset = new FileSet();
@@ -67,12 +67,12 @@ class TestChangelogGeneratorMojo {
     assertThat(releaseNotes).exists();
 
     String issues = StringUtils.substringAfter(readFileContent(releaseNotes),
-            "This is a Leading Edge version.");
+        "This is a Leading Edge version.");
     String portalIssues = StringUtils.substringBeforeLast(issues, "IVYPORTAL");
     portalIssues = StringUtils.substringAfter(issues, "IVYPORTAL");
     assertThat(portalIssues)
-            .as("No XIVY and IVYPORTAL issues mixed")
-            .doesNotContain("XIVY-");
+        .as("No XIVY and IVYPORTAL issues mixed")
+        .doesNotContain("XIVY-");
   }
 
   @Test
@@ -86,8 +86,8 @@ class TestChangelogGeneratorMojo {
     assertThat(releaseNotes).exists();
 
     assertThat(readFileContent(releaseNotes))
-            .as("No Technical tasks displayed")
-            .doesNotContain("Technical task");
+        .as("No Technical tasks displayed")
+        .doesNotContain("Technical task");
   }
 
   @Test
@@ -101,11 +101,11 @@ class TestChangelogGeneratorMojo {
     assertThat(releaseNotes).exists();
 
     assertThat(readFileContent(releaseNotes))
-            .as("Only bugs contained")
-            .doesNotContain("Technical task")
-            .doesNotContain("Story")
-            .doesNotContain("Improvement")
-            .contains("Bug");
+        .as("Only bugs contained")
+        .doesNotContain("Technical task")
+        .doesNotContain("Story")
+        .doesNotContain("Improvement")
+        .contains("Bug");
   }
 
   @Test
@@ -119,7 +119,7 @@ class TestChangelogGeneratorMojo {
     assertThat(releaseNotes).exists();
 
     String issues = StringUtils.substringAfter(readFileContent(releaseNotes),
-            "This is a Leading Edge version.");
+        "This is a Leading Edge version.");
     assertCorrectlyOrdered(issues.lines().filter(issue -> issue.contains("XIVY-")).toArray(String[]::new));
   }
 
@@ -142,7 +142,7 @@ class TestChangelogGeneratorMojo {
   }
 
   private String createReleaseNotesAndReadRecommendation(String version) throws Exception {
-    mojo.filterBy = "project = XIVY AND fixVersion = "+version;
+    mojo.filterBy = "project = XIVY AND fixVersion = " + version;
     mojo.asciiTemplate = "${key}:${type};";
     mojo.fileset.addInclude("ReleaseNotes.txt");
     mojo.exec(server);
@@ -150,8 +150,7 @@ class TestChangelogGeneratorMojo {
     File releaseNotes = new File(outputPath + "/ReleaseNotes.txt");
     assertThat(releaseNotes).exists();
 
-    String recommendation = StringUtils.substringAfter(readFileContent(releaseNotes), "This is a Leading Edge version.");
-    return recommendation;
+    return StringUtils.substringAfter(readFileContent(releaseNotes), "This is a Leading Edge version.");
   }
 
   private void assertCorrectlyOrdered(String[] splitIssues) {
@@ -159,8 +158,8 @@ class TestChangelogGeneratorMojo {
       Integer issueNumber = getIssueNumber(splitIssues[i]);
       Integer nextIssueNumber = getIssueNumber(splitIssues[i + 1]);
       assertThat(issueNumber)
-              .as("Next issue number must be higher")
-              .isLessThan(nextIssueNumber);
+          .as("Next issue number must be higher")
+          .isLessThan(nextIssueNumber);
     }
   }
 
