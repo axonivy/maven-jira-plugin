@@ -21,10 +21,10 @@ public class NewReleaseVersionMojo extends AbstractMojo {
   public String jiraServerId;
 
   /** jira base url */
-  @Parameter(property = "jiraServerUri", defaultValue = "https://axon-ivy.atlassian.net")
+  @Parameter(property = "jiraServerUri", defaultValue = "https://api.atlassian.com/ex/jira/faf36321-51c3-43cf-bc2b-9c5e380b79e9")
   public String jiraServerUri;
 
-  /** the new version to introduce in jira*/
+  /** the new version to introduce in jira */
   @Parameter(property = "newVersion", required = true)
   public String newVersion;
 
@@ -54,7 +54,7 @@ public class NewReleaseVersionMojo extends AbstractMojo {
 
     var version = ReleaseVersion.parse(newVersion);
     if (version.isEmpty()) {
-      getLog().error("aborting: property 'newVersion' is mandatory, but was "+newVersion);
+      getLog().error("aborting: property 'newVersion' is mandatory, but was " + newVersion);
       return;
     }
 
@@ -70,20 +70,19 @@ public class NewReleaseVersionMojo extends AbstractMojo {
   private static void createVersion(JiraReleaseService releases, ReleaseVersion newVersion, Optional<ReleaseVersion> afterVersion, Log log) {
     var versions = releases.ivyVersions();
     var existing = versions.stream()
-      .filter(version -> newVersion.toShortString().equalsIgnoreCase(version.name))
-      .findFirst();
+        .filter(version -> newVersion.toShortString().equalsIgnoreCase(version.name))
+        .findFirst();
     if (existing.isPresent()) {
-      log.info("Skipping: XIVY version "+newVersion+" exists already "+existing.get().self);
+      log.info("Skipping: XIVY version " + newVersion + " exists already " + existing.get().self);
       return;
     }
 
     JiraVersion created = releases.create(newVersion.toShortString());
     log.info("Created new XIVY version " + created.self);
 
-
     if (afterVersion.isPresent()) {
       releases.move(newVersion.toShortString(), afterVersion.get().toShortString());
-      log.info("Moved "+newVersion+" to occur after "+afterVersion.get());
+      log.info("Moved " + newVersion + " to occur after " + afterVersion.get());
     }
   }
 }
