@@ -15,12 +15,18 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status.Family;
 
 public class JiraService {
-  private final String serverUri;
+  private final String apiUri;
+  private final String browseUri;
   private final Server server;
   private final Log log;
 
   public JiraService(String serverUri, Server server, Log log) {
-    this.serverUri = serverUri;
+    this(serverUri, serverUri, server, log);
+  }
+
+  public JiraService(String serverUri, String browseUri, Server server, Log log) {
+    this.apiUri = serverUri;
+    this.browseUri = browseUri;
     this.server = server;
     this.log = log;
   }
@@ -29,7 +35,7 @@ public class JiraService {
     Client client = JiraClientFactory.createClient(server);
     return readIssues(jqlTarget(client, query)).stream()
         .map(i -> {
-          i.serverUri = serverUri;
+          i.browseUri = browseUri;
           return i;
         })
         .collect(Collectors.toList());
@@ -37,7 +43,7 @@ public class JiraService {
 
   private WebTarget jqlTarget(Client client, JiraQuery query) {
     return client
-        .target(serverUri)
+        .target(apiUri)
         .path("rest/api/3/search/jql")
         .queryParam("jql", query.toJql());
   }

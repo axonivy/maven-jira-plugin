@@ -37,6 +37,7 @@ class TestChangelogGeneratorMojo {
     server.setId("axonivy.jira");
 
     mojo.jiraServerUri = "https://api.atlassian.com/ex/jira/faf36321-51c3-43cf-bc2b-9c5e380b79e9";
+    mojo.jiraBrowseUri = "https://axon-ivy.atlassian.net";
     mojo.jiraServerId = "axonivy.jira";
     mojo.whitelistJiraLabels = "security,performance";
     mojo.fileset = new FileSet();

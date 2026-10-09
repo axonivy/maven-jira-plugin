@@ -28,10 +28,10 @@ public class JiraResponse {
     public String key;
     @JsonProperty("fields")
     public IssueFields fields;
-    public String serverUri;
+    public String browseUri;
 
     public String getUri() {
-      return serverUri + "/browse/" + getKey();
+      return browseUri + "/browse/" + getKey();
     }
 
     public String getKey() {

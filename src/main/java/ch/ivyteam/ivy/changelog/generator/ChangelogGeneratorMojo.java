@@ -43,6 +43,10 @@ public class ChangelogGeneratorMojo extends AbstractMojo {
   @Parameter(property = "jiraServerUri", defaultValue = "https://api.atlassian.com/ex/jira/faf36321-51c3-43cf-bc2b-9c5e380b79e9")
   public String jiraServerUri;
 
+  /** Jira base URL used to link issues in the browser. */
+  @Parameter(property = "jiraBrowseUri", defaultValue = "https://axon-ivy.atlassian.net")
+  public String jiraBrowseUri = "https://axon-ivy.atlassian.net";
+
   /*** filter query to run against Jira */
   @Parameter(property = "filterBy", required = true)
   public String filterBy;
@@ -147,7 +151,7 @@ public class ChangelogGeneratorMojo extends AbstractMojo {
 
   private List<Issue> loadIssuesFromJira(Server server) throws MojoExecutionException {
     try {
-      JiraService jiraService = new JiraService(jiraServerUri, server, getLog());
+      JiraService jiraService = new JiraService(jiraServerUri, jiraBrowseUri, server, getLog());
       JiraQuery query = new JiraQuery(filterBy);
       return jiraService.queryIssues(query);
     } catch (RuntimeException ex) {
