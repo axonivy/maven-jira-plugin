@@ -21,6 +21,17 @@ class TestTemplateExpander {
   }
 
   @Test
+  void expand_uri_usesJiraBrowseUrl() {
+    Issue issue = createOneIssue().get(0);
+    issue.browseUri = "https://axon-ivy.atlassian.net";
+    TemplateExpander testee = new TemplateExpander("[${key}](${uri})", "", "", true);
+
+    String expand = testee.expand(List.of(issue), "");
+
+    assertThat(expand).isEqualTo("[XIVY-500](https://axon-ivy.atlassian.net/browse/XIVY-500)");
+  }
+
+  @Test
   void expand_labelsWithHtmlBatches() {
     TemplateExpander testee = new TemplateExpander("${labelsWithHtmlBatches}", "seCurity , performance", "", false);
     String expand = testee.expand(createOneIssue(), "");
